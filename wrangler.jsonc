@@ -4,11 +4,12 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "my-first-worker",
+	"name": "divine-river-f6e4",
 	"compatibility_date": "2026-01-03",
 	"assets": {
 		// The path to the directory containing the `index.html` file to be served at `/`
-		"directory": "./public"
+		"directory": "./public",
+		"not_found_handling": "404-page"
 	},
 	"observability": {
 		"enabled": true
