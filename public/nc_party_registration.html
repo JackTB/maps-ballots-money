@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NC Voter Registration by County</title>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --dem:   #2563ff;
+    --rep:   #ff392b;
+    --una:   #9146ff;
+    --oth:   #27ae60;
+    --bg:    #f5f0e8;
+    --ink:   #1a1209;
+    --rule:  #c8b89a;
+    --paper: #faf7f2;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: var(--ink);
+  }
+
+  body {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 2rem 1rem 3rem;
+  }
+
+  header {
+    text-align: center;
+    border-bottom: 2px solid var(--rule);
+    padding-bottom: 1rem;
+    margin-bottom: 0.4rem;
+    width: 100%; max-width: 1000px;
+  }
+
+  header p.dateline {
+    font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #8a7a62; margin-bottom: 0.5rem;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', 'Times New Roman', serif;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    font-weight: 900; line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  header p.sub {
+    margin-top: 0.5rem; font-size: 0.88rem; font-style: italic; color: #5a4e3a;
+  }
+
+  #map-wrap {
+    position: relative;
+    width: 100%; max-width: 1000px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  }
+
+  svg#map {
+    width: 100%; height: auto;
+    display: block;
+  }
+
+  .county-base {
+    fill: #ede9df;
+    stroke: #b0a080;
+    stroke-width: 0.5;
+    transition: filter 0.15s;
+    cursor: pointer;
+  }
+  .county-base:hover { filter: brightness(0.88); }
+
+  /* Tooltip */
+  #tip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    box-shadow: 3px 4px 14px rgba(0,0,0,0.18);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.82rem;
+    max-width: 250px;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 99;
+  }
+  #tip.show { opacity: 1; }
+  #tip h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; margin-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rule); padding-bottom: 0.3rem;
+  }
+  #tip table { width: 100%; border-collapse: collapse; }
+  #tip td { padding: 1px 4px; }
+  #tip .swatch {
+    display: inline-block; width: 10px; height: 10px;
+    border-radius: 2px; margin-right: 4px; vertical-align: middle;
+  }
+  #tip .num { text-align: right; font-variant-numeric: tabular-nums; }
+  #tip .pct { text-align: right; color: #7a6e5a; font-size: 0.75rem; }
+  #tip .total-row td { border-top: 1px solid var(--rule); font-weight: 600; padding-top: 3px; }
+
+  /* Legend */
+  #legend {
+    display: flex; gap: 1.4rem; flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+    font-size: 0.82rem;
+  }
+  .leg-item { display: flex; align-items: center; gap: 0.35rem; }
+  .leg-swatch {
+    width: 14px; height: 14px; border-radius: 3px;
+  }
+
+  footer {
+    margin-top: 1.2rem;
+    font-size: 0.72rem; color: #9a8a72; font-style: italic;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="dateline">North Carolina &#8226; Voter Registration</p>
+  <h1>Party Registration Across<br>100 Counties</h1>
+  <p class="sub">Pie chart area scaled to total registered voters &mdash; hover for details</p>
+</header>
+
+<div id="map-wrap">
+  <svg id="map" viewBox="0 0 1200 500"></svg>
+</div>
+
+<div id="legend">
+  <div class="leg-item"><div class="leg-swatch" style="background:var(--dem)"></div> Democrat</div>
+  <div class="leg-item"><div class="leg-swatch" style="background:var(--rep)"></div> Republican</div>
+  <div class="leg-item"><div class="leg-swatch" style="background:var(--una)"></div> Unaffiliated</div>
+  <div class="leg-item"><div class="leg-swatch" style="background:var(--oth)"></div> Other</div>
+</div>
+
+<footer>Source: NC State Board of Elections (synthetic demo data) &nbsp;|&nbsp; US Census TIGER/Line 2023</footer>
+
+<div id="tip"></div>
+
+<script>
+// ── embedded registration data ──────────────────────────────────────────────
+const REG = {"ALAMANCE":{"name":"Alamance","fips":"37001","dem":31288.0,"rep":34789.0,"una":36210.0,"oth":548.0},"ALEXANDER":{"name":"Alexander","fips":"37003","dem":3289.0,"rep":11739.0,"una":7940.0,"oth":101.0},"ALLEGHANY":{"name":"Alleghany","fips":"37005","dem":1379.0,"rep":3293.0,"una":2579.0,"oth":28.0},"ANSON":{"name":"Anson","fips":"37007","dem":5945.0,"rep":2938.0,"una":3835.0,"oth":43.0},"ASHE":{"name":"Ashe","fips":"37009","dem":2970.0,"rep":8615.0,"una":6516.0,"oth":78.0},"AVERY":{"name":"Avery","fips":"37011","dem":921.0,"rep":6099.0,"una":3329.0,"oth":55.0},"BEAUFORT":{"name":"Beaufort","fips":"37013","dem":7864.0,"rep":12194.0,"una":9592.0,"oth":100.0},"BERTIE":{"name":"Bertie","fips":"37015","dem":5993.0,"rep":1591.0,"una":2795.0,"oth":34.0},"BLADEN":{"name":"Bladen","fips":"37017","dem":7061.0,"rep":5254.0,"una":7215.0,"oth":65.0},"BRUNSWICK":{"name":"Brunswick","fips":"37019","dem":23954.0,"rep":52767.0,"una":48434.0,"oth":595.0},"BUNCOMBE":{"name":"Buncombe","fips":"37021","dem":61478.0,"rep":38467.0,"una":78762.0,"oth":1302.0},"BURKE":{"name":"Burke","fips":"37023","dem":9764.0,"rep":22533.0,"una":19183.0,"oth":285.0},"CABARRUS":{"name":"Cabarrus","fips":"37025","dem":36978.0,"rep":47127.0,"una":53604.0,"oth":943.0},"CALDWELL":{"name":"Caldwell","fips":"37027","dem":7294.0,"rep":25220.0,"una":15605.0,"oth":270.0},"CAMDEN":{"name":"Camden","fips":"37029","dem":1021.0,"rep":2942.0,"una":3198.0,"oth":55.0},"CARTERET":{"name":"Carteret","fips":"37031","dem":7549.0,"rep":24444.0,"una":18697.0,"oth":290.0},"CASWELL":{"name":"Caswell","fips":"37033","dem":4704.0,"rep":4241.0,"una":4505.0,"oth":48.0},"CATAWBA":{"name":"Catawba","fips":"37035","dem":16408.0,"rep":46452.0,"una":37264.0,"oth":577.0},"CHATHAM":{"name":"Chatham","fips":"37037","dem":18882.0,"rep":13531.0,"una":24244.0,"oth":285.0},"CHEROKEE":{"name":"Cherokee","fips":"37039","dem":2454.0,"rep":11334.0,"una":6793.0,"oth":117.0},"CHOWAN":{"name":"Chowan","fips":"37041","dem":2743.0,"rep":2941.0,"una":2952.0,"oth":34.0},"CLAY":{"name":"Clay","fips":"37043","dem":1104.0,"rep":4531.0,"una":3119.0,"oth":41.0},"CLEVELAND":{"name":"Cleveland","fips":"37045","dem":15546.0,"rep":24685.0,"una":18900.0,"oth":336.0},"COLUMBUS":{"name":"Columbus","fips":"37047","dem":10247.0,"rep":10460.0,"una":10640.0,"oth":92.0},"CRAVEN":{"name":"Craven","fips":"37049","dem":15953.0,"rep":25819.0,"una":22900.0,"oth":470.0},"CUMBERLAND":{"name":"Cumberland","fips":"37051","dem":66644.0,"rep":42532.0,"una":62922.0,"oth":1322.0},"CURRITUCK":{"name":"Currituck","fips":"37053","dem":2535.0,"rep":9139.0,"una":8794.0,"oth":151.0},"DARE":{"name":"Dare","fips":"37055","dem":5952.0,"rep":10248.0,"una":12302.0,"oth":198.0},"DAVIDSON":{"name":"Davidson","fips":"37057","dem":17601.0,"rep":53641.0,"una":34270.0,"oth":579.0},"DAVIE":{"name":"Davie","fips":"37059","dem":3849.0,"rep":15723.0,"una":10077.0,"oth":143.0},"DUPLIN":{"name":"Duplin","fips":"37061","dem":8104.0,"rep":9443.0,"una":9070.0,"oth":96.0},"DURHAM":{"name":"Durham","fips":"37063","dem":103761.0,"rep":19559.0,"una":78938.0,"oth":949.0},"EDGECOMBE":{"name":"Edgecombe","fips":"37065","dem":16061.0,"rep":6207.0,"una":7120.0,"oth":97.0},"FORSYTH":{"name":"Forsyth","fips":"37067","dem":80258.0,"rep":64965.0,"una":85362.0,"oth":1398.0},"FRANKLIN":{"name":"Franklin","fips":"37069","dem":14494.0,"rep":16008.0,"una":17776.0,"oth":327.0},"GASTON":{"name":"Gaston","fips":"37071","dem":33169.0,"rep":55659.0,"una":46778.0,"oth":941.0},"GATES":{"name":"Gates","fips":"37073","dem":2562.0,"rep":1968.0,"una":2193.0,"oth":25.0},"GRAHAM":{"name":"Graham","fips":"37075","dem":811.0,"rep":2894.0,"una":1706.0,"oth":24.0},"GRANVILLE":{"name":"Granville","fips":"37077","dem":12889.0,"rep":10497.0,"una":12503.0,"oth":173.0},"GREENE":{"name":"Greene","fips":"37079","dem":3773.0,"rep":2467.0,"una":3331.0,"oth":22.0},"GUILFORD":{"name":"Guilford","fips":"37081","dem":128918.0,"rep":80722.0,"una":115788.0,"oth":1794.0},"HALIFAX":{"name":"Halifax","fips":"37083","dem":15055.0,"rep":4036.0,"una":8563.0,"oth":71.0},"HARNETT":{"name":"Harnett","fips":"37085","dem":19391.0,"rep":29735.0,"una":26673.0,"oth":646.0},"HAYWOOD":{"name":"Haywood","fips":"37087","dem":10146.0,"rep":15586.0,"una":16679.0,"oth":283.0},"HENDERSON":{"name":"Henderson","fips":"37089","dem":14573.0,"rep":28739.0,"una":34762.0,"oth":516.0},"HERTFORD":{"name":"Hertford","fips":"37091","dem":6719.0,"rep":1482.0,"una":2926.0,"oth":35.0},"HOKE":{"name":"Hoke","fips":"37093","dem":10725.0,"rep":6617.0,"una":11309.0,"oth":216.0},"HYDE":{"name":"Hyde","fips":"37095","dem":1077.0,"rep":641.0,"una":927.0,"oth":8.0},"IREDELL":{"name":"Iredell","fips":"37097","dem":23333.0,"rep":55347.0,"una":48568.0,"oth":756.0},"JACKSON":{"name":"Jackson","fips":"37099","dem":6609.0,"rep":7455.0,"una":11179.0,"oth":169.0},"JOHNSTON":{"name":"Johnston","fips":"37101","dem":35057.0,"rep":55565.0,"una":52947.0,"oth":1059.0},"JONES":{"name":"Jones","fips":"37103","dem":1904.0,"rep":2217.0,"una":1987.0,"oth":20.0},"LEE":{"name":"Lee","fips":"37105","dem":10163.0,"rep":11593.0,"una":12812.0,"oth":261.0},"LENOIR":{"name":"Lenoir","fips":"37107","dem":12563.0,"rep":9664.0,"una":9484.0,"oth":126.0},"LINCOLN":{"name":"Lincoln","fips":"37109","dem":9675.0,"rep":30575.0,"una":20881.0,"oth":336.0},"MACON":{"name":"Macon","fips":"37113","dem":3956.0,"rep":11123.0,"una":10037.0,"oth":150.0},"MADISON":{"name":"Madison","fips":"37115","dem":4020.0,"rep":4482.0,"una":6592.0,"oth":96.0},"MARTIN":{"name":"Martin","fips":"37117","dem":6133.0,"rep":3314.0,"una":4770.0,"oth":48.0},"MCDOWELL":{"name":"McDowell","fips":"37111","dem":4276.0,"rep":12529.0,"una":10041.0,"oth":151.0},"MECKLENBURG":{"name":"Mecklenburg","fips":"37119","dem":270677.0,"rep":137803.0,"una":278652.0,"oth":4673.0},"MITCHELL":{"name":"Mitchell","fips":"37121","dem":832.0,"rep":5860.0,"una":3202.0,"oth":52.0},"MONTGOMERY":{"name":"Montgomery","fips":"37123","dem":3816.0,"rep":6011.0,"una":4987.0,"oth":58.0},"MOORE":{"name":"Moore","fips":"37125","dem":12686.0,"rep":30412.0,"una":27087.0,"oth":502.0},"NASH":{"name":"Nash","fips":"37127","dem":22355.0,"rep":18291.0,"una":18975.0,"oth":232.0},"NEW HANOVER":{"name":"New Hanover","fips":"37129","dem":41682.0,"rep":48961.0,"una":66160.0,"oth":1136.0},"NORTHAMPTON":{"name":"Northampton","fips":"37131","dem":6027.0,"rep":1426.0,"una":3231.0,"oth":23.0},"ONSLOW":{"name":"Onslow","fips":"37133","dem":17136.0,"rep":42892.0,"una":43242.0,"oth":1113.0},"ORANGE":{"name":"Orange","fips":"37135","dem":43417.0,"rep":11762.0,"una":40789.0,"oth":429.0},"PAMLICO":{"name":"Pamlico","fips":"37137","dem":2189.0,"rep":3848.0,"una":2919.0,"oth":43.0},"PASQUOTANK":{"name":"Pasquotank","fips":"37139","dem":8352.0,"rep":7008.0,"una":9587.0,"oth":146.0},"PENDER":{"name":"Pender","fips":"37141","dem":8635.0,"rep":19526.0,"una":16734.0,"oth":325.0},"PERQUIMANS":{"name":"Perquimans","fips":"37143","dem":2134.0,"rep":3455.0,"una":3318.0,"oth":53.0},"PERSON":{"name":"Person","fips":"37145","dem":7541.0,"rep":7889.0,"una":8960.0,"oth":105.0},"PITT":{"name":"Pitt","fips":"37147","dem":38035.0,"rep":27925.0,"una":37519.0,"oth":589.0},"POLK":{"name":"Polk","fips":"37149","dem":2942.0,"rep":5809.0,"una":5947.0,"oth":78.0},"RANDOLPH":{"name":"Randolph","fips":"37151","dem":11508.0,"rep":46868.0,"una":26559.0,"oth":431.0},"RICHMOND":{"name":"Richmond","fips":"37153","dem":8838.0,"rep":7134.0,"una":7750.0,"oth":95.0},"ROBESON":{"name":"Robeson","fips":"37155","dem":23643.0,"rep":13596.0,"una":22719.0,"oth":184.0},"ROCKINGHAM":{"name":"Rockingham","fips":"37157","dem":13657.0,"rep":23493.0,"una":17719.0,"oth":287.0},"ROWAN":{"name":"Rowan","fips":"37159","dem":17542.0,"rep":39372.0,"una":28824.0,"oth":503.0},"RUTHERFORD":{"name":"Rutherford","fips":"37161","dem":7146.0,"rep":18437.0,"una":13927.0,"oth":204.0},"SAMPSON":{"name":"Sampson","fips":"37163","dem":9584.0,"rep":14415.0,"una":8184.0,"oth":139.0},"SCOTLAND":{"name":"Scotland","fips":"37165","dem":7319.0,"rep":4325.0,"una":6480.0,"oth":76.0},"STANLY":{"name":"Stanly","fips":"37167","dem":6761.0,"rep":20722.0,"una":13280.0,"oth":207.0},"STOKES":{"name":"Stokes","fips":"37169","dem":4199.0,"rep":16671.0,"una":9122.0,"oth":184.0},"SURRY":{"name":"Surry","fips":"37171","dem":7054.0,"rep":21266.0,"una":13594.0,"oth":201.0},"SWAIN":{"name":"Swain","fips":"37173","dem":2072.0,"rep":2798.0,"una":3337.0,"oth":69.0},"TRANSYLVANIA":{"name":"Transylvania","fips":"37175","dem":4774.0,"rep":7712.0,"una":10734.0,"oth":124.0},"TYRRELL":{"name":"Tyrrell","fips":"37177","dem":742.0,"rep":426.0,"una":718.0,"oth":8.0},"UNION":{"name":"Union","fips":"37179","dem":32413.0,"rep":64910.0,"una":59903.0,"oth":980.0},"VANCE":{"name":"Vance","fips":"37181","dem":12251.0,"rep":4819.0,"una":6250.0,"oth":84.0},"WAKE":{"name":"Wake","fips":"37183","dem":248483.0,"rep":159490.0,"una":330755.0,"oth":4902.0},"WARREN":{"name":"Warren","fips":"37185","dem":6339.0,"rep":2252.0,"una":2858.0,"oth":37.0},"WASHINGTON":{"name":"Washington","fips":"37187","dem":3604.0,"rep":1393.0,"una":1748.0,"oth":20.0},"WATAUGA":{"name":"Watauga","fips":"37189","dem":9148.0,"rep":10962.0,"una":17683.0,"oth":285.0},"WAYNE":{"name":"Wayne","fips":"37191","dem":21031.0,"rep":23690.0,"una":18326.0,"oth":355.0},"WILKES":{"name":"Wilkes","fips":"37193","dem":5135.0,"rep":23268.0,"una":11716.0,"oth":157.0},"WILSON":{"name":"Wilson","fips":"37195","dem":18816.0,"rep":12734.0,"una":13769.0,"oth":190.0},"YADKIN":{"name":"Yadkin","fips":"37197","dem":2253.0,"rep":13625.0,"una":6802.0,"oth":99.0},"YANCEY":{"name":"Yancey","fips":"37199","dem":2961.0,"rep":4956.0,"una":4590.0,"oth":74.0}};
+const NC_FIPS = ["37001", "37003", "37005", "37007", "37009", "37011", "37013", "37015", "37017", "37019", "37021", "37023", "37025", "37027", "37029", "37031", "37033", "37035", "37037", "37039", "37041", "37043", "37045", "37047", "37049", "37051", "37053", "37055", "37057", "37059", "37061", "37063", "37065", "37067", "37069", "37071", "37073", "37075", "37077", "37079", "37081", "37083", "37085", "37087", "37089", "37091", "37093", "37095", "37097", "37099", "37101", "37103", "37105", "37107", "37109", "37111", "37113", "37115", "37117", "37119", "37121", "37123", "37125", "37127", "37129", "37131", "37133", "37135", "37137", "37139", "37141", "37143", "37145", "37147", "37149", "37151", "37153", "37155", "37157", "37159", "37161", "37163", "37165", "37167", "37169", "37171", "37173", "37175", "37177", "37179", "37181", "37183", "37185", "37187", "37189", "37191", "37193", "37195", "37197", "37199"];
+const ncFipsSet = new Set(NC_FIPS);
+
+const COLORS = { dem:'#36a0f6', rep:'#dd5551', una:'#b69ef0', oth:'#27ae60' };
+const LABELS = { dem:'Democrat', rep:'Republican', una:'Unaffiliated', oth:'Other' };
+
+// ── load TopoJSON, project, draw ─────────────────────────────────────────────
+const SVG_W = 1200, SVG_H = 500;
+
+async function main() {
+  const topo = await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json')
+    .then(r => r.json());
+
+  const counties = topojson.feature(topo, topo.objects.counties);
+
+  // NC bounding box in albers-projected pixel space (roughly)
+  // We'll compute a manual bounding box from NC features then transform
+  const ncFeatures = counties.features.filter(f => ncFipsSet.has(f.id));
+
+  // Simple equirectangular-ish projection tuned to NC
+  // NC roughly: lon -84.3 to -75.5, lat 33.8 to 36.6
+  const lonMin=-84.4, lonMax=-75.4, latMin=33.75, latMax=36.65;
+  const PAD = 20;
+  function project([lon,lat]) {
+    const x = PAD + (lon - lonMin)/(lonMax - lonMin) * (SVG_W - 2*PAD);
+    const y = PAD + (latMax - lat)/(latMax - latMin) * (SVG_H - 2*PAD);
+    return [x, y];
+  }
+
+  function pathFromFeature(feature) {
+    const coords = feature.geometry.type === 'Polygon'
+      ? [feature.geometry.coordinates]
+      : feature.geometry.coordinates;
+    // coords is array-of-polygons, each polygon is array-of-rings
+    let d = '';
+    for (const poly of coords) {
+      for (let ri = 0; ri < poly.length; ri++) {
+        const ring = poly[ri];
+        // ring is [[lon,lat], ...]
+        d += ring.map((pt, i) => {
+          const [x,y] = project(pt);
+          return (i===0?'M':'L') + x.toFixed(2) + ',' + y.toFixed(2);
+        }).join('') + 'Z';
+      }
+    }
+    return d;
+  }
+
+  function centroid(feature) {
+    // average of all vertices
+    let xs=0, ys=0, n=0;
+    const coords = feature.geometry.type === 'Polygon'
+      ? [feature.geometry.coordinates]
+      : feature.geometry.coordinates;
+    for (const poly of coords) {
+      for (const ring of poly) {
+        for (const pt of ring) {
+          const [x,y] = project(pt);
+          xs+=x; ys+=y; n++;
+        }
+      }
+    }
+    return [xs/n, ys/n];
+  }
+
+  const svg = document.getElementById('map');
+  const ns = 'http://www.w3.org/2000/svg';
+
+  // base county paths
+  const baseGroup = document.createElementNS(ns,'g');
+  baseGroup.setAttribute('id','bases');
+  svg.appendChild(baseGroup);
+
+  // pie group (on top)
+  const pieGroup = document.createElementNS(ns,'g');
+  pieGroup.setAttribute('id','pies');
+  svg.appendChild(pieGroup);
+
+  // compute max total for radius scaling
+  const totals = Object.values(REG).map(d=>d.dem+d.rep+d.una+d.oth);
+  const maxTotal = Math.max(...totals);
+  const minTotal = Math.min(...totals);
+  // const BASE_R = 3 / Math.sqrt(minTotal/maxTotal); // max pie radius px so that minium pie is 10 pixels
+  const BASE_R = 23; // max pie radius px
+
+  const tip = document.getElementById('tip');
+
+  for (const feat of ncFeatures) {
+    const fips = feat.id;
+    // find county name by fips
+    const rec = Object.values(REG).find(r=>r.fips===fips);
+
+    // draw base path
+    const path = document.createElementNS(ns,'path');
+    path.setAttribute('d', pathFromFeature(feat));
+    path.setAttribute('class','county-base');
+    baseGroup.appendChild(path);
+
+    if (!rec) continue;
+
+    const [cx, cy] = centroid(feat);
+    const total = rec.dem + rec.rep + rec.una + rec.oth;
+    const r = Math.max(3, BASE_R * Math.sqrt(total/maxTotal));
+
+    // draw pie
+    const slices = [
+      {key:'dem', val:rec.dem},
+      {key:'rep', val:rec.rep},
+      {key:'una', val:rec.una},
+      {key:'oth', val:rec.oth},
+    ];
+
+    let startAngle = -Math.PI/2;
+    for (const sl of slices) {
+      const frac = sl.val / total;
+      const sweep = frac * 2 * Math.PI;
+      const endAngle = startAngle + sweep;
+
+      const x1 = cx + r * Math.cos(startAngle);
+      const y1 = cy + r * Math.sin(startAngle);
+      const x2 = cx + r * Math.cos(endAngle);
+      const y2 = cy + r * Math.sin(endAngle);
+      const largeArc = sweep > Math.PI ? 1 : 0;
+
+      const wedge = document.createElementNS(ns,'path');
+      const d = frac > 0.999
+        ? `M${cx},${cy} m${-r},0 a${r},${r} 0 1,0 ${2*r},0 a${r},${r} 0 1,0 ${-2*r},0`
+        : `M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${largeArc},1 ${x2.toFixed(2)},${y2.toFixed(2)} Z`;
+      wedge.setAttribute('d', d);
+      wedge.setAttribute('fill', COLORS[sl.key]);
+      wedge.setAttribute('stroke','#faf7f2');
+      wedge.setAttribute('stroke-width','0.6');
+      pieGroup.appendChild(wedge);
+
+      startAngle = endAngle;
+    }
+
+    // invisible hit circle for tooltip
+    const hit = document.createElementNS(ns,'circle');
+    hit.setAttribute('cx', cx); hit.setAttribute('cy', cy);
+    hit.setAttribute('r', Math.max(r+2, 8));
+    hit.setAttribute('fill','transparent');
+    hit.setAttribute('style','cursor:pointer');
+    hit.dataset.rec = JSON.stringify(rec);
+    hit.dataset.total = total;
+    pieGroup.appendChild(hit);
+
+    // tooltip events
+    hit.addEventListener('mousemove', e => {
+      const d = JSON.parse(hit.dataset.rec);
+      const tot = parseInt(hit.dataset.total);
+      const pct = v => (v/tot*100).toFixed(1)+'%';
+      const fmt = v => v.toLocaleString();
+      tip.innerHTML = `
+        <h3>${d.name} County</h3>
+        <table>
+          <tr><td><span class="swatch" style="background:${COLORS.dem}"></span>Democrat</td>
+              <td class="num">${fmt(d.dem)}</td><td class="pct">${pct(d.dem)}</td></tr>
+          <tr><td><span class="swatch" style="background:${COLORS.rep}"></span>Republican</td>
+              <td class="num">${fmt(d.rep)}</td><td class="pct">${pct(d.rep)}</td></tr>
+          <tr><td><span class="swatch" style="background:${COLORS.una}"></span>Unaffiliated</td>
+              <td class="num">${fmt(d.una)}</td><td class="pct">${pct(d.una)}</td></tr>
+          <tr><td><span class="swatch" style="background:${COLORS.oth}"></span>Other</td>
+              <td class="num">${fmt(d.oth)}</td><td class="pct">${pct(d.oth)}</td></tr>
+          <tr class="total-row"><td>Total</td>
+              <td class="num" colspan="2">${fmt(tot)}</td></tr>
+        </table>`;
+      tip.classList.add('show');
+      positionTip(e);
+    });
+    hit.addEventListener('mousemove', positionTip);
+    hit.addEventListener('mouseleave', () => tip.classList.remove('show'));
+  }
+}
+
+function positionTip(e) {
+  const tip = document.getElementById('tip');
+  let x = e.clientX + 14, y = e.clientY - 10;
+  if (x + 240 > window.innerWidth) x = e.clientX - 240;
+  if (y + 200 > window.innerHeight) y = e.clientY - 200;
+  tip.style.left = x+'px';
+  tip.style.top  = y+'px';
+}
+
+main();
+</script>
+</body>
+</html>
