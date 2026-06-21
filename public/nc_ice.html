@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_cdd85b20e0107308096acb9b4868ae70 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 10px;
+                background-image: url("images/white-simple-texture.jpg");
+            }
+            p {
+            max-width: 90ch;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:10px;
+                bottom:10px;
+                right:10px;
+                left:10px;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    
+                    <style>
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    </style>
+            
+    
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>$( function() {
+        $( ".maplegend" ).draggable({
+            start: function (event, ui) {
+                $(this).css({
+                    right: "auto",
+                    top: "auto",
+                    bottom: "auto"
+                });
+            }
+        });
+    });
+    </script>
+    <style type='text/css'>
+      .maplegend {
+        position: absolute;
+        z-index:9999;
+        background-color: rgba(255, 255, 255, .8);
+        border-radius: 5px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        padding: 10px;
+        font: 12px/14px Arial, Helvetica, sans-serif;
+        right: 10px;
+        bottom: 20px;
+      }
+      .maplegend .legend-title {
+        text-align: left;
+        margin-bottom: 5px;
+        font-weight: bold;
+        }
+      .maplegend .legend-scale ul {
+        margin: 0;
+        margin-bottom: 0px;
+        padding: 0;
+        float: left;
+        list-style: none;
+        }
+      .maplegend .legend-scale ul li {
+        list-style: none;
+        margin-left: 0;
+        line-height: 16px;
+        margin-bottom: 2px;
+        }
+      .maplegend ul.legend-labels li span {
+        display: block;
+        float: left;
+        height: 14px;
+        width: 14px;
+        margin-right: 5px;
+        margin-left: 0;
+        border: 0px solid #ccc;
+        }
+      .maplegend .legend-source {
+        color: #777;
+        clear: both;
+        }
+      .maplegend a {
+        color: #777;
+        }
+    </style>
+    
+</head>
+<body>
+    
+<div>
+<h2>NC Counties with ICE 287(g) Partnerships</h2>
+<p width=800>If you're traveling, consider avoiding spending money—especially on gas and food—in 
+these counties. The partnerships between county sheriffs and ICE encourage the use of the 
+atrocious methods ICE has become known for. It's easy to feel powerless in the face of this, 
+but you can make an impact with your wallet. When your choices combine with those of others, 
+businesses in these counties will realize that their elected sheriff's decisions are costing them money.
+</div>    
+    <div id='maplegend ice' class='maplegend'>
+        <div class='legend-title'>ice</div>
+        <div class='legend-scale'>
+            <ul class='legend-labels'>
+                <li><span style='background:#ff0000'></span>287(g) ICE Partner</li>
+            </ul>
+        </div>
+    </div>
+    
+    
+            <div class="folium-map" id="map_cdd85b20e0107308096acb9b4868ae70" ></div>
+
+<div>
+<p>Source: <a href="https://www.ice.gov/identify-and-arrest/287g">ICE.gov</a></p>
+</div>    
+        
+</body>
+<script>
+    
+    
+            var map_cdd85b20e0107308096acb9b4868ae70 = L.map(
+                "map_cdd85b20e0107308096acb9b4868ae70",
+                {
+                    center: [35.196803692807094, -80.167507],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+            L.control.scale().addTo(map_cdd85b20e0107308096acb9b4868ae70);
+
+            
+
+        
+    
+            var tile_layer_8d728cbc9ac558e0cea5e94c8ed475a8 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_8d728cbc9ac558e0cea5e94c8ed475a8.addTo(map_cdd85b20e0107308096acb9b4868ae70);
+        
+    
+            map_cdd85b20e0107308096acb9b4868ae70.fitBounds(
+                [[33.851112, -84.32186899999999], [36.542495385614195, -76.013145]],
+                {}
+            );
+        
+    
+        function geo_json_3aebd41bf20e309740414f5c79f71dfd_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "#ff0000", "fillColor": "#ff0000", "fillOpacity": 0.5, "weight": 2};
+            }
+        }
+        function geo_json_3aebd41bf20e309740414f5c79f71dfd_highlighter(feature) {
+            switch(feature.id) {
+                default:
+                    return {"fillOpacity": 0.75};
+            }
+        }
+        function geo_json_3aebd41bf20e309740414f5c79f71dfd_pointToLayer(feature, latlng) {
+            var opts = {
+  "stroke": true,
+  "color": "#3388ff",
+  "weight": 3,
+  "opacity": 1.0,
+  "lineCap": "round",
+  "lineJoin": "round",
+  "dashArray": null,
+  "dashOffset": null,
+  "fill": true,
+  "fillColor": "#3388ff",
+  "fillOpacity": 0.2,
+  "fillRule": "evenodd",
+  "bubblingMouseEvents": true,
+  "radius": 2,
+};
+            
+            let style = geo_json_3aebd41bf20e309740414f5c79f71dfd_styler(feature)
+            Object.assign(opts, style)
+            
+            return new L.CircleMarker(latlng, opts)
+        }
+
+        function geo_json_3aebd41bf20e309740414f5c79f71dfd_onEachFeature(feature, layer) {
+
+            layer.on({
+                mouseout: function(e) {
+                    if(typeof e.target.setStyle === "function"){
+                            geo_json_3aebd41bf20e309740414f5c79f71dfd.resetStyle(e.target);
+                    }
+                },
+                mouseover: function(e) {
+                    if(typeof e.target.setStyle === "function"){
+                        const highlightStyle = geo_json_3aebd41bf20e309740414f5c79f71dfd_highlighter(e.target.feature)
+                        e.target.setStyle(highlightStyle);
+                    }
+                },
+            });
+        };
+        var geo_json_3aebd41bf20e309740414f5c79f71dfd = L.geoJson(null, {
+                onEachFeature: geo_json_3aebd41bf20e309740414f5c79f71dfd_onEachFeature,
+            
+                style: geo_json_3aebd41bf20e309740414f5c79f71dfd_styler,
+                pointToLayer: geo_json_3aebd41bf20e309740414f5c79f71dfd_pointToLayer,
+            ...{
+  "edgecolor": "black",
+}
+        });
+
+        function geo_json_3aebd41bf20e309740414f5c79f71dfd_add (data) {
+            geo_json_3aebd41bf20e309740414f5c79f71dfd
+                .addData(data);
+        }
+            geo_json_3aebd41bf20e309740414f5c79f71dfd_add({"bbox": [-84.32186899999999, 33.851112, -76.013145, 36.542495385614195], "features": [{"bbox": [-81.76813440777389, 35.1622859155574, -81.32172899999999, 35.580041], "geometry": {"coordinates": [[[-81.70285299999999, 35.357304], [-81.69198899999999, 35.580041], [-81.56725, 35.558201], [-81.537599, 35.564228], [-81.51500899999999, 35.557781999999996], [-81.4556, 35.419810999999996], [-81.35668199999999, 35.330604], [-81.32172899999999, 35.260449], [-81.32809098929181, 35.1622859155574], [-81.3676049106764, 35.16409216120449], [-81.494265, 35.169882], [-81.76813440777389, 35.1797077063839], [-81.70285299999999, 35.357304]]], "type": "Polygon"}, "id": "0", "properties": {"AFFGEOID": "0500000US37045", "ALAND": 1202289388, "AWATER": 10199645, "COUNTYFP": "045", "COUNTYNS": "01008547", "County": "CLEVELAND", "GEOID": "37045", "LSAD": "06", "NAME": "Cleveland", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-81.537599, 35.400078, -80.939685, 35.568137], "geometry": {"coordinates": [[[-81.535403, 35.568137], [-80.960025, 35.547019999999996], [-80.939685, 35.529529], [-80.947344, 35.488473], [-80.94238, 35.455147], [-80.95486, 35.400078], [-81.4556, 35.419810999999996], [-81.51500899999999, 35.557781999999996], [-81.537599, 35.564228], [-81.535403, 35.568137]]], "type": "Polygon"}, "id": "1", "properties": {"AFFGEOID": "0500000US37109", "ALAND": 766225394, "AWATER": 23364650, "COUNTYFP": "109", "COUNTYNS": "01008569", "County": "LINCOLN", "GEOID": "37109", "LSAD": "06", "NAME": "Lincoln", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-81.535403, 35.547019999999996, -80.92754, 35.827887], "geometry": {"coordinates": [[[-81.432898, 35.677847], [-81.363796, 35.767801999999996], [-81.35351399999999, 35.776268], [-81.334272, 35.796281], [-81.264611, 35.805212], [-81.248998, 35.815716], [-81.143053, 35.827887], [-81.109507, 35.776593999999996], [-81.061328, 35.710640999999995], [-81.005321, 35.710209], [-80.994445, 35.70211], [-80.98203699999999, 35.682491999999996], [-80.96630499999999, 35.670313], [-80.951241, 35.641413], [-80.92754, 35.622977999999996], [-80.933483, 35.591329], [-80.960025, 35.547019999999996], [-81.535403, 35.568137], [-81.432898, 35.677847]]], "type": "Polygon"}, "id": "2", "properties": {"AFFGEOID": "0500000US37035", "ALAND": 1039550849, "AWATER": 37945123, "COUNTYFP": "035", "COUNTYNS": "01008543", "County": "CATAWBA", "GEOID": "37035", "LSAD": "06", "NAME": "Catawba", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-80.066842, 35.505660999999996, -79.54172799999999, 35.920693], "geometry": {"coordinates": [[[-80.046869, 35.920693], [-79.713233, 35.90679], [-79.54172799999999, 35.899851], [-79.542428, 35.843303], [-79.555804, 35.515039], [-79.767957, 35.511483999999996], [-80.066842, 35.505660999999996], [-80.046869, 35.920693]]], "type": "Polygon"}, "id": "3", "properties": {"AFFGEOID": "0500000US37151", "ALAND": 2026195914, "AWATER": 19801097, "COUNTYFP": "151", "COUNTYNS": "01008580", "County": "RANDOLPH", "GEOID": "37151", "LSAD": "06", "NAME": "Randolph", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-78.6508712805333, 33.851112, -77.8854550755211, 34.371711], "geometry": {"coordinates": [[[-78.640688, 34.009854], [-78.557052, 34.061848999999995], [-78.54521799999999, 34.145747], [-78.515289, 34.165865], [-78.422921, 34.139494], [-78.37429499999999, 34.204893], [-78.254622, 34.216305], [-78.16235, 34.357006999999996], [-78.13730199999999, 34.371711], [-78.029922, 34.331768], [-77.956605, 34.234491], [-77.8854550755211, 34.038240984853005], [-77.915536, 33.971723], [-77.9348271350857, 33.9205485057973], [-77.960172, 33.853314999999995], [-78.006765, 33.858703999999996], [-78.018689, 33.888289], [-78.136952, 33.912178], [-78.276147, 33.912364], [-78.38396399999999, 33.901945999999995], [-78.54108699999999, 33.851112], [-78.615932, 33.915523], [-78.6508712805333, 33.9450557205328], [-78.640688, 34.009854]]], "type": "Polygon"}, "id": "4", "properties": {"AFFGEOID": "0500000US37019", "ALAND": 2199384967, "AWATER": 518918112, "COUNTYFP": "019", "COUNTYNS": "01026340", "County": "BRUNSWICK", "GEOID": "37019", "LSAD": "06", "NAME": "Brunswick", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-79.0712436122253, 33.9450557205328, -78.16235, 34.484778], "geometry": {"coordinates": [[[-79.0712436122253, 34.2993039510346], [-78.959698, 34.443008], [-78.868961, 34.484778], [-78.830353, 34.462578], [-78.64837299999999, 34.460868999999995], [-78.44532, 34.3774], [-78.334569, 34.367536], [-78.256085, 34.399468999999996], [-78.20253199999999, 34.353305999999996], [-78.16235, 34.357006999999996], [-78.254622, 34.216305], [-78.37429499999999, 34.204893], [-78.422921, 34.139494], [-78.515289, 34.165865], [-78.54521799999999, 34.145747], [-78.557052, 34.061848999999995], [-78.640688, 34.009854], [-78.6508712805333, 33.9450557205328], [-78.81170999999999, 34.081005999999995], [-79.071169, 34.29924], [-79.0712436122253, 34.2993039510346]]], "type": "Polygon"}, "id": "5", "properties": {"AFFGEOID": "0500000US37047", "ALAND": 2429710310, "AWATER": 43724143, "COUNTYFP": "047", "COUNTYNS": "01026339", "County": "COLUMBUS", "GEOID": "37047", "LSAD": "06", "NAME": "Columbus", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-80.784167, 35.184998, -80.29542099999999, 35.506017], "geometry": {"coordinates": [[[-80.784167, 35.506017], [-80.73737899999999, 35.505804], [-80.29542099999999, 35.502919999999996], [-80.49737499999999, 35.202104], [-80.50498499999999, 35.184998], [-80.550349, 35.208411999999996], [-80.599733, 35.234105], [-80.66647999999999, 35.267934], [-80.693061, 35.346379], [-80.766414, 35.401478], [-80.784167, 35.506017]]], "type": "Polygon"}, "id": "6", "properties": {"AFFGEOID": "0500000US37025", "ALAND": 935602088, "AWATER": 7006691, "COUNTYFP": "025", "COUNTYNS": "01008540", "County": "CABARRUS", "GEOID": "37025", "LSAD": "06", "NAME": "Cabarrus", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-78.255973, 35.730545, -77.69795599999999, 36.202633], "geometry": {"coordinates": [[[-78.255973, 35.81812], [-78.006551, 36.202633], [-77.88640000000001, 36.143994], [-77.720742, 36.133884], [-77.69795599999999, 36.15315], [-77.706966, 36.115503], [-77.82844399999999, 35.867208], [-77.844737, 35.837618], [-77.915657, 35.83645], [-78.192117, 35.730545], [-78.23250999999999, 35.751256], [-78.255973, 35.81812]]], "type": "Polygon"}, "id": "7", "properties": {"AFFGEOID": "0500000US37127", "ALAND": 1399739813, "AWATER": 6177826, "COUNTYFP": "127", "COUNTYNS": "01008574", "County": "NASH", "GEOID": "37127", "LSAD": "06", "NAME": "Nash", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-79.15399699999999, 36.235794, -78.79627395514049, 36.542113], "geometry": {"coordinates": [[[-79.1383358988714, 36.5416382700559], [-78.942009, 36.542113], [-78.79627395514049, 36.5417594935816], [-78.802335, 36.235794], [-78.950597, 36.23932], [-79.15399699999999, 36.241875], [-79.1383358988714, 36.5416382700559]]], "type": "Polygon"}, "id": "8", "properties": {"AFFGEOID": "0500000US37145", "ALAND": 1016141536, "AWATER": 31218721, "COUNTYFP": "145", "COUNTYNS": "01008577", "County": "PERSON", "GEOID": "37145", "LSAD": "06", "NAME": "Person", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-78.19864199999999, 34.713979, -77.653352, 35.192535], "geometry": {"coordinates": [[[-78.14712899999999, 34.902505999999995], [-78.16342, 35.189716], [-78.044451, 35.192535], [-77.891892, 35.146425], [-77.834249, 35.177845999999995], [-77.769177, 35.145576], [-77.746354, 35.030096], [-77.731026, 35.008137999999995], [-77.67480499999999, 34.9739], [-77.653352, 34.940535], [-77.680127, 34.720594999999996], [-77.980738, 34.713979], [-78.114007, 34.721795], [-78.19864199999999, 34.741637], [-78.14712899999999, 34.902505999999995]]], "type": "Polygon"}, "id": "9", "properties": {"AFFGEOID": "0500000US37061", "ALAND": 2110160387, "AWATER": 14193279, "COUNTYFP": "061", "COUNTYNS": "01026132", "County": "DUPLIN", "GEOID": "37061", "LSAD": "06", "NAME": "Duplin", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-77.473692, 34.809066, -76.652571, 35.418362], "geometry": {"coordinates": [[[-77.431319, 35.329781], [-77.391026, 35.339532999999996], [-77.29433999999999, 35.379137], [-77.247896, 35.354414999999996], [-77.189115, 35.418362], [-76.95888699999999, 35.301013], [-76.89591899999999, 35.253889], [-76.98726599999999, 35.15495], [-76.94081899999999, 35.119102999999996], [-76.953285, 35.021248], [-76.780586, 34.950434], [-76.71158, 34.981767999999995], [-76.652571, 34.937595], [-76.693018, 34.86918], [-76.883201, 34.844893], [-76.954438, 34.809066], [-77.07826299999999, 34.811322], [-77.11348699999999, 35.072441999999995], [-77.473692, 35.228985], [-77.431319, 35.329781]]], "type": "Polygon"}, "id": "10", "properties": {"AFFGEOID": "0500000US37049", "ALAND": 1830077186, "AWATER": 172715012, "COUNTYFP": "049", "COUNTYNS": "01026123", "County": "CRAVEN", "GEOID": "37049", "LSAD": "06", "NAME": "Craven", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-77.680127, 34.4373849694266, -77.09607299999999, 34.9739], "geometry": {"coordinates": [[[-77.653352, 34.940535], [-77.67480499999999, 34.9739], [-77.502771, 34.969635], [-77.366768, 34.90865], [-77.267433, 34.925537], [-77.16598599999999, 34.785032], [-77.09607299999999, 34.67124], [-77.1129643930768, 34.6380928323915], [-77.136843, 34.632926], [-77.240991, 34.587506999999995], [-77.322524, 34.535574], [-77.46292199999999, 34.471354], [-77.51521654458479, 34.4373849694266], [-77.576165, 34.476607], [-77.680127, 34.720594999999996], [-77.653352, 34.940535]]], "type": "Polygon"}, "id": "11", "properties": {"AFFGEOID": "0500000US37133", "ALAND": 1973417749, "AWATER": 371022642, "COUNTYFP": "133", "COUNTYNS": "01026341", "County": "ONSLOW", "GEOID": "37133", "LSAD": "06", "NAME": "Onslow", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-81.4556, 35.1467686494682, -80.923062, 35.419810999999996], "geometry": {"coordinates": [[[-81.4556, 35.419810999999996], [-80.95486, 35.400078], [-80.923062, 35.360648], [-80.972597, 35.350338], [-81.01505, 35.268654999999995], [-81.00580599999999, 35.157022999999995], [-81.04230245013859, 35.1467686494682], [-81.04287, 35.149248], [-81.32809098929181, 35.1622859155574], [-81.32172899999999, 35.260449], [-81.35668199999999, 35.330604], [-81.4556, 35.419810999999996]]], "type": "Polygon"}, "id": "12", "properties": {"AFFGEOID": "0500000US37071", "ALAND": 921311293, "AWATER": 20627404, "COUNTYFP": "071", "COUNTYNS": "01008554", "County": "GASTON", "GEOID": "37071", "LSAD": "06", "NAME": "Gaston", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-82.0811489171324, 35.911361, -81.73567299999999, 36.2873579173821], "geometry": {"coordinates": [[[-82.08014299999999, 36.10572], [-82.02874, 36.124322], [-81.960101, 36.228131], [-81.93436924449259, 36.2647162043798], [-81.9184444729048, 36.2873579173821], [-81.907698, 36.214163], [-81.82923, 36.168791], [-81.81051599999999, 36.111511], [-81.73567299999999, 36.067584], [-81.80716199999999, 35.961954999999996], [-81.89987099999999, 35.999908999999995], [-81.94318799999999, 35.960049999999995], [-81.981954, 35.911361], [-82.034104, 35.942057], [-82.0811489171324, 36.1056921143326], [-82.08014299999999, 36.10572]]], "type": "Polygon"}, "id": "13", "properties": {"AFFGEOID": "0500000US37011", "ALAND": 640602132, "AWATER": 445285, "COUNTYFP": "011", "COUNTYNS": "01008536", "County": "AVERY", "GEOID": "37011", "LSAD": "06", "NAME": "Avery", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-80.84056690902139, 34.813620821544, -80.27682899999999, 35.208411999999996], "geometry": {"coordinates": [[[-80.84056690902139, 35.001471529394294], [-80.77248, 35.033156999999996], [-80.550349, 35.208411999999996], [-80.50498499999999, 35.184998], [-80.356982, 35.16494], [-80.27682899999999, 35.195721999999996], [-80.3208325711298, 34.813620821544], [-80.561657, 34.817481], [-80.5617085493824, 34.8174824003365], [-80.79699699999999, 34.823873999999996], [-80.78204199999999, 34.935781999999996], [-80.84056690902139, 35.001471529394294]]], "type": "Polygon"}, "id": "14", "properties": {"AFFGEOID": "0500000US37179", "ALAND": 1638654587, "AWATER": 18015880, "COUNTYFP": "179", "COUNTYNS": "01008590", "County": "UNION", "GEOID": "37179", "LSAD": "06", "NAME": "Union", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-81.81051599999999, 35.767801999999996, -81.328324, 36.12253], "geometry": {"coordinates": [[[-81.81051599999999, 36.111511], [-81.67514899999999, 36.12253], [-81.54548799999999, 36.117475], [-81.397817, 36.066061], [-81.328324, 35.996583], [-81.343993, 35.824163], [-81.334272, 35.796281], [-81.35351399999999, 35.776268], [-81.363796, 35.767801999999996], [-81.555994, 35.777538], [-81.709749, 35.875003], [-81.80716199999999, 35.961954999999996], [-81.73567299999999, 36.067584], [-81.81051599999999, 36.111511]]], "type": "Polygon"}, "id": "15", "properties": {"AFFGEOID": "0500000US37027", "ALAND": 1222192503, "AWATER": 7038403, "COUNTYFP": "027", "COUNTYNS": "01008541", "County": "CALDWELL", "GEOID": "37027", "LSAD": "06", "NAME": "Caldwell", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-79.542428, 35.843303, -79.237295, 36.249673], "geometry": {"coordinates": [[[-79.54172799999999, 35.899851], [-79.53241, 36.241462999999996], [-79.531865, 36.249673], [-79.257952, 36.243445], [-79.268243, 35.909182], [-79.249538, 35.87681], [-79.237295, 35.844246999999996], [-79.542428, 35.843303], [-79.54172799999999, 35.899851]]], "type": "Polygon"}, "id": "16", "properties": {"AFFGEOID": "0500000US37001", "ALAND": 1096684439, "AWATER": 27992169, "COUNTYFP": "001", "COUNTYNS": "01008531", "County": "ALAMANCE", "GEOID": "37001", "LSAD": "06", "NAME": "Alamance", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-77.16598599999999, 34.588577, -76.013145, 35.201453], "geometry": {"coordinates": [[[-77.161676, 34.795075], [-77.07826299999999, 34.811322], [-76.954438, 34.809066], [-76.883201, 34.844893], [-76.693018, 34.86918], [-76.652571, 34.937595], [-76.71158, 34.981767999999995], [-76.304136, 35.201453], [-76.06577399999999, 35.124936999999996], [-76.013145, 35.061855], [-76.137269, 34.987857999999996], [-76.233088, 34.905477], [-76.31021, 34.852309], [-76.386804, 34.784579], [-76.450454, 34.71445], [-76.535946, 34.588577], [-76.553806, 34.628251999999996], [-76.618719, 34.67255], [-76.726969, 34.69669], [-76.906257, 34.68282], [-77.1129643930768, 34.6380928323915], [-77.09607299999999, 34.67124], [-77.16598599999999, 34.785032], [-77.161676, 34.795075]]], "type": "Polygon"}, "id": "17", "properties": {"AFFGEOID": "0500000US37031", "ALAND": 1314696235, "AWATER": 2131054352, "COUNTYFP": "031", "COUNTYNS": "01026337", "County": "CARTERET", "GEOID": "37031", "LSAD": "06", "NAME": "Carteret", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-82.745139, 35.14647534784749, -82.261305, 35.500194], "geometry": {"coordinates": [[[-82.673343, 35.459452999999996], [-82.532713, 35.416615], [-82.49520799999999, 35.445186], [-82.33256999999999, 35.500194], [-82.265795, 35.467818], [-82.280563, 35.443069], [-82.261305, 35.393198], [-82.359152, 35.244489], [-82.35317527291949, 35.198714129600695], [-82.411301, 35.202483], [-82.455609, 35.177425], [-82.53255999999999, 35.155617], [-82.5777151484413, 35.14647534784749], [-82.619248, 35.303708], [-82.745139, 35.422967], [-82.673343, 35.459452999999996]]], "type": "Polygon"}, "id": "18", "properties": {"AFFGEOID": "0500000US37089", "ALAND": 965884896, "AWATER": 5537500, "COUNTYFP": "089", "COUNTYNS": "01008562", "County": "HENDERSON", "GEOID": "37089", "LSAD": "06", "NAME": "Henderson", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-84.32186899999999, 34.987649584012296, -83.690212, 35.292123776493895], "geometry": {"coordinates": [[[-84.2865983787409, 35.205758218495895], [-84.28322, 35.226577], [-84.22371799999999, 35.269078], [-84.178516, 35.240679], [-84.09750799999999, 35.247382], [-84.02910441377249, 35.292123776493895], [-83.968532, 35.218074], [-83.831429, 35.256116999999996], [-83.702772, 35.24852], [-83.690212, 35.237942], [-83.738129, 35.15595], [-83.850726, 35.140547], [-84.0053367334383, 34.987649584012296], [-84.1294469626359, 34.9879469539553], [-84.32186899999999, 34.988408], [-84.2865983787409, 35.205758218495895]]], "type": "Polygon"}, "id": "19", "properties": {"AFFGEOID": "0500000US37039", "ALAND": 1179834154, "AWATER": 28824944, "COUNTYFP": "039", "COUNTYNS": "01008545", "County": "CHEROKEE", "GEOID": "37039", "LSAD": "06", "NAME": "Cherokee", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}, {"bbox": [-80.035119, 36.241462999999996, -79.51364766250859, 36.542495385614195], "geometry": {"coordinates": [[[-80.0273389151412, 36.542495385614195], [-80.02726899999999, 36.542494999999995], [-79.89167016695389, 36.5420338366162], [-79.714850811052, 36.5414324847413], [-79.51364766250859, 36.5407482050707], [-79.531865, 36.249673], [-79.53241, 36.241462999999996], [-80.035119, 36.257183999999995], [-80.0273389151412, 36.542495385614195]]], "type": "Polygon"}, "id": "20", "properties": {"AFFGEOID": "0500000US37157", "ALAND": 1464980033, "AWATER": 18461421, "COUNTYFP": "157", "COUNTYNS": "01008582", "County": "ROCKINGHAM", "GEOID": "37157", "LSAD": "06", "NAME": "Rockingham", "STATEFP": "37", "State": "NORTH CAROLINA", "__folium_color": "#ff0000", "ice": "287(g) ICE Partner"}, "type": "Feature"}], "type": "FeatureCollection"});
+
+        
+    
+    geo_json_3aebd41bf20e309740414f5c79f71dfd.bindTooltip(
+    function(layer){
+    let div = L.DomUtil.create('div');
+    
+    let handleObject = feature => {
+        if (feature === null) {
+            return '';
+        } else if (typeof(feature)=='object') {
+            return JSON.stringify(feature);
+        } else {
+            return feature;
+        }
+    }
+    let fields = ["State", "County"];
+    let aliases = ["State", "County"];
+    let table = '<table>' +
+        String(
+        fields.map(
+        (v,i)=>
+        `<tr>
+            <th>${aliases[i]}</th>
+            
+            <td>${handleObject(layer.feature.properties[v])}</td>
+        </tr>`).join(''))
+    +'</table>';
+    div.innerHTML=table;
+    
+    return div
+    }
+    ,{
+  "sticky": true,
+  "className": "foliumtooltip",
+});
+                     
+    
+            geo_json_3aebd41bf20e309740414f5c79f71dfd.addTo(map_cdd85b20e0107308096acb9b4868ae70);
+        
+</script>
+</html>
