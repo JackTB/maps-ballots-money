@@ -17,7 +17,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_d0d9ed8177afc3db2c29595aef4c9f27 {
+                #map_cdd85b20e0107308096acb9b4868ae70 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -27,20 +27,30 @@
                 .leaflet-container { font-size: 1rem; }
             </style>
 
-            <style>html, body {
+            <style>html {
                 width: 100%;
                 height: 100%;
                 margin: 0;
                 padding: 0;
             }
-            </style>
+			body {
+					width: 100%;
+					height: 100%;
+					margin: 0;
+					padding: 10px;
+					background-image: url("images/white-simple-texture.jpg");
+				}
+				p {
+				max-width: 90ch;
+				}
+                </style>
 
             <style>#map {
                 position:absolute;
-                top:0;
-                bottom:0;
-                right:0;
-                left:0;
+                top:10px;
+                bottom:10px;
+                right:10px;
+                left:10px;
                 }
             </style>
 
@@ -131,7 +141,15 @@
 </head>
 <body>
     
-    
+	<div>
+	<h2>Counties with ICE 287(g) Partnerships</h2>
+	<p width=800>If you're traveling, consider avoiding spending money—especially on gas and food—in 
+	these counties. The partnerships between county sheriffs and ICE encourage the use of the 
+	atrocious methods ICE has become known for. It's easy to feel powerless in the face of this, 
+	but you can make an impact with your wallet. When your choices combine with those of others, 
+	businesses in these counties will realize that their elected sheriff's decisions are costing them money.
+	</div>    
+		
     <div id='maplegend ice' class='maplegend'>
         <div class='legend-title'>ice</div>
         <div class='legend-scale'>
@@ -143,6 +161,10 @@
     
     
             <div class="folium-map" id="map_d0d9ed8177afc3db2c29595aef4c9f27" ></div>
+        
+	<div>
+	<p>Source: <a href="https://www.ice.gov/identify-and-arrest/287g">ICE.gov</a></p>
+	</div>    
         
 </body>
 <script>
