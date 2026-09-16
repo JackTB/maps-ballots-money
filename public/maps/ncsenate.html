@@ -27,12 +27,34 @@
                 .leaflet-container { font-size: 1rem; }
             </style>
 
-            <style>html, body {
+       <style>
+            html {
                 width: 100%;
                 height: 100%;
                 margin: 0;
                 padding: 0;
             }
+			body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: #b3d8b3;
+                background-image: url("../Images/light-green-background.jpg");
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+            
+            div.top {
+            	max-width: 600px;
+            	margin: 0 auto;
+			  	padding: 20px;
+  			}
+            div.bottom {
+            	max-width: 800px;
+            	margin: 10 ;
+			  	padding: 20px;
+  			}
             </style>
 
             <style>#map {
@@ -69,11 +91,33 @@
 </head>
 <body>
     
+            <div class="top">
+                <p><h2 align="center">2026 NC State Senate Races</h2>
+                This is a map of the Districts for the North Carolina General Assembly Senate
+                races in the 2026 election. 
+                Hover over (or tap on mobile device) a district to see the candidates,
+                demographics, voter registration and results from the last two elections.
+				</p>
+			</div>
     
             <div class="folium-map" id="map_321da58c4d9b7e1a62729aed46127b9c" ></div>
         
+	        <div class="bottom">
+            <p><h2>Sources</h2>
+            	<ul>
+		            <li>Incumbents: NC Senate <a href="https://www.ncleg.gov/Members/MemberTable/S">North Carolina Senators</a>
+        		    <li>Candidates: <a href="https://s3.amazonaws.com/dl.ncsbe.gov/Elections/2026/Candidate%20Filing/Candidate_Listing_2026.csv">NC State Board of Elections</a>
+		            <li>Voter Registration Data: <a href="https://s3.amazonaws.com/dl.ncsbe.gov/data/ncvoter_Statewide.zip">NC State Board of Elections</a>
+					<li>2022 and 2024 Election Results: NC State Board of Elections 
+					 <a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/results_pct_20241105.zip">November 2024 Results</a>
+					 <a href="https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2022_11_08/results_pct_20221108.zip">November 2022 Results</a>
+					<li>Population and voting age population: <a href="https://redistrictingdatahub.org/dataset/north-carolina-2024-state-legislative-district-upper-cvap-data-2024/">Redistricting Data Hub</a>
+				</ul>
+			</p>
+            </div>
 </body>
-<script>
+<script>    
+
     
     
             var map_321da58c4d9b7e1a62729aed46127b9c = L.map(
