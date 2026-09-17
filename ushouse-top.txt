@@ -1,0 +1,13 @@
+            <div class="top">
+                <p><h2 align="center">2026 NC US House of Representative Races</h2>
+                This is a map of the NC Districts for the US House of Representative
+                races in the 2026 election. 
+                Hover over (or tap on mobile device) a district to see the candidates,
+                demographics, voter registration and results from the last two elections.
+				</p>
+				
+				<p>Note that all of these districts changed from 2022 to 2024 
+				and 2 more (districts 1 and 3) had significant changes for 2026. 
+				So election results need to be viewed with that in mind.
+				</p>
+			</div>
