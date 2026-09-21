@@ -1,0 +1,91 @@
+   body {
+      background-color: #b3d8b3;
+      background-image: url("../images/light-green-background.jpg");
+      background-position: center;
+    }
+
+    table.dataframe
+    {
+      border: 0;
+      margin: 5px;
+      padding: 5px;
+    }
+    th {
+      background-color: white;
+      font-weight: bold;
+      padding: 5px;
+    }
+    td {
+      background-color: white;
+      padding: 5px;
+    }
+    td.label {
+      font-weight: bold;
+    }
+    td.value {
+      text-align: right;
+    }
+    td.heading {
+      font-weight: bold;
+    }
+    td.district {
+      background-color: white;
+      padding: 5px;
+    }
+    td.candidate {
+      background-color: lightgrey;
+      padding: 5px;
+    }
+    td.demo {
+      background-color: azure;
+      padding: 5px;
+    }
+    td.reg {
+      background-color: beige;
+      padding: 5px;
+    }
+    td.election24 {
+      background-color: honeydew;
+      padding: 5px;
+    }
+    td.election22 {
+      background-color: lavender;
+      padding: 5px;
+    }
+    td.heading {
+      font-weight: bold;
+    }
+
+    td.district-link {
+        text-align: center;
+    }
+    td.district-link a {
+        color: #6d4aff;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    td.district-link a:hover {
+        text-decoration: underline;
+    }
+    td.district-link a {
+        display: block;
+        padding: 4px 10px;
+    }
+   .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ---------- Card (link wrapping image + text) ---------- */
+    .grid-card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
