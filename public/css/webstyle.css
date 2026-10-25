@@ -1,0 +1,57 @@
+*{
+padding: 0px;
+margin: 0px;
+}
+
+header{
+height: 45px;
+}
+header nav ul{
+display: flex;
+margin-left: 80%;
+}
+
+header nav ul li{
+padding-left: 10%;
+}
+
+section{
+border: 1px solid grey;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.Container{
+margin: 5%
+}
+
+.Container img{
+width: 100%;
+}
+
+.Container h2{
+margin: 10px;
+}
+
+p{
+padding: 10px;
+margin: 10px;
+}
+
+footer {
+line-height: 40px;
+display: flex;
+justify-content: center;
+}
+
+#intro {
+background-image: url(/Images/ripples-background.png);
+}
+
+#about{
+background-color: bisque;
+}
+#contact{
+background-color: blanchedalmond;
+}
