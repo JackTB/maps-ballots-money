@@ -3,6 +3,12 @@ padding: 0px;
 margin: 0px;
 }
 
+body {
+	background-image: url(/Images/ripples-drop-background.png);
+	background-color: #76B2E0;
+	background-repeat: no-repeat;
+}
+
 header{
 height: 45px;
 }
@@ -14,6 +20,34 @@ margin-left: 80%;
 header nav ul li{
 padding-left: 10%;
 }
+  p.note {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    max-width: 40rem;
+    line-height: 1.5;
+  }
+  table {
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  }
+  th, td {
+    padding: 0.5rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  thead th {
+    background: #6d4aff;
+    color: #fff;
+    font-weight: 600;
+  }
+  tbody tr:nth-child(even) {
+    background: #f5f3ff;
+  }
+  th:first-child, td:first-child {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
 
 section{
 border: 1px solid grey;
@@ -46,7 +80,6 @@ justify-content: center;
 }
 
 #intro {
-background-image: url(/Images/ripples-background.png);
 }
 
 #about{
